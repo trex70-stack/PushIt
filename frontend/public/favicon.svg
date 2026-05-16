@@ -1,18 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background rounded square -->
   <rect width="512" height="512" rx="96" fill="#0f0f1a"/>
-  <path d="M 95,190 Q 52,398 292,408"
-        stroke="#ffffff" stroke-width="26" fill="none" stroke-linecap="round"/>
-  <line x1="158" y1="342" x2="328" y2="174"
-        stroke="#ffffff" stroke-width="11" stroke-linecap="round"/>
-  <circle cx="328" cy="174" r="14" fill="#ffffff"/>
-  <line x1="192" y1="408" x2="192" y2="466"
-        stroke="#ffffff" stroke-width="15" stroke-linecap="round"/>
-  <line x1="137" y1="466" x2="247" y2="466"
-        stroke="#ffffff" stroke-width="15" stroke-linecap="round"/>
-  <path d="M 328,106 A 68,68 0 0 1 396,174"
-        stroke="#e0e7ff" stroke-width="13" fill="none" stroke-linecap="round"/>
-  <path d="M 328,64 A 110,110 0 0 1 438,174"
-        stroke="#a5b4fc" stroke-width="11" fill="none" stroke-linecap="round"/>
-  <path d="M 328,22 A 152,152 0 0 1 480,174"
-        stroke="#6366f1" stroke-width="9" fill="none" stroke-linecap="round"/>
+
+  <!-- Signalbögen: gefüllte Kreisring-Sektoren (Außen → Innen, wird übermalt) -->
+  <!-- Bogen 3 (außen, dunkel indigo) R_out=165, R_in=133 -->
+  <path fill="#6366f1"
+        d="M 328,9 C 419,9 493,83 493,174 L 461,174 C 461,101 402,41 328,41 Z"/>
+
+  <!-- Bogen 2 (mitte, violett) R_out=122, R_in=97 -->
+  <path fill="#a5b4fc"
+        d="M 328,52 C 395,52 450,107 450,174 L 425,174 C 425,120 382,77 328,77 Z"/>
+
+  <!-- Bogen 1 (innen, hell) R_out=80, R_in=60 -->
+  <path fill="#e0e7ff"
+        d="M 328,94 C 372,94 408,130 408,174 L 388,174 C 388,141 361,114 328,114 Z"/>
+
+  <!-- Satellitenschüssel: gefülltes Band aus zwei kubischen Bezier-Kurven -->
+  <path fill="#ffffff"
+        d="M 85,199 C 56,338 122,410 282,417
+           L 302,399
+           C 142,392 76,320 105,181 Z"/>
+
+  <!-- Zuleitungsarm: gefülltes Parallelogramm -->
+  <path fill="#ffffff"
+        d="M 331.9,177.9 L 324.1,170.1 L 154.1,338.1 L 161.9,345.9 Z"/>
+
+  <!-- Mast: vertikales Rechteck -->
+  <rect x="184.5" y="408" width="15" height="58" rx="7.5" fill="#ffffff"/>
+
+  <!-- Standfuß: horizontales Rechteck -->
+  <rect x="137" y="458.5" width="110" height="15" rx="7.5" fill="#ffffff"/>
+
+  <!-- Feed-Horn: Kreis am Brennpunkt -->
+  <circle cx="328" cy="174" r="16" fill="#ffffff"/>
 </svg>
