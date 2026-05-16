@@ -1,0 +1,20 @@
+{
+  "productName": "PushIt Client",
+  "identifier": "de.pushit.client",
+  "version": "1.0.0",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.png"]
+  }
+}

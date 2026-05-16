@@ -1,0 +1,1 @@
+ALTER TYPE "public"."device_type" ADD VALUE 'desktop_electron' BEFORE 'samsung_tv';

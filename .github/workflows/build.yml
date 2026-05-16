@@ -1,0 +1,111 @@
+name: Build Installers
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  # ── Tauri Desktop-Client (macOS + Windows) ───────────────────────────────────
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: macOS (Apple Silicon)
+            artifact_name: PushIt-macOS
+            artifact_path: tauri-client/src-tauri/target/release/bundle/dmg/*.dmg
+
+          - os: windows-latest
+            label: Windows (x64)
+            artifact_name: PushIt-Windows
+            artifact_path: tauri-client/src-tauri/target/release/bundle/nsis/*.exe
+
+    name: Tauri – ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tauri-client/package-lock.json
+
+      - name: Rust (stable) einrichten
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust-Build-Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: tauri-client/src-tauri -> target
+
+      - name: Node-Abhängigkeiten installieren
+        working-directory: tauri-client
+        run: npm install
+
+      - name: Tauri-App bauen
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: tauri-client
+          # Bei Tag-Push wird automatisch ein GitHub Release erstellt
+          tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+          releaseName: PushIt ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+          releaseDraft: true
+
+      - name: Installer als Artefakt hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
+
+  # ── Android / Fire TV APK ────────────────────────────────────────────────────
+  build-android:
+    name: Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Code auschecken
+        uses: actions/checkout@v4
+
+      - name: JDK 17 einrichten
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Gradle-Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('android-client/**/*.gradle*', 'android-client/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-
+
+      - name: APK bauen
+        working-directory: android-client
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: APK als Artefakt hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: PushIt-FireTV-APK
+          path: android-client/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      # Bei Tag-Push: APK an GitHub Release anhängen
+      - name: APK an Release anhängen
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: android-client/app/build/outputs/apk/debug/app-debug.apk

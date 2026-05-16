@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0f0f1a"
+    android:padding="32dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Header (immer sichtbar) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PushIt"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textColor="#7c83ff"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fire TV Client"
+            android:textSize="14sp"
+            android:textColor="#666688"
+            android:layout_marginBottom="48dp" />
+
+        <!-- ── SCREEN 1: SETUP ── -->
+        <LinearLayout
+            android:id="@+id/layoutSetup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView style="@style/Label" android:text="Backend-URL" />
+            <EditText
+                android:id="@+id/etBackendUrl"
+                style="@style/Input"
+                android:hint="http://192.168.x.x:3000"
+                android:inputType="textUri" />
+
+            <TextView
+                android:id="@+id/tvSetupError"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#ff6b6b"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnStartPairing"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="Pairing starten"
+                android:backgroundTint="#6366f1"
+                android:textColor="#ffffff"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <!-- ── SCREEN 2: PAIRING LÄUFT ── -->
+        <LinearLayout
+            android:id="@+id/layoutPairing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dein Pairing-Code"
+                android:textSize="13sp"
+                android:textColor="#666688"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Großer Code-Kasten -->
+            <TextView
+                android:id="@+id/tvPairingCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="---"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:textColor="#7c83ff"
+                android:fontFamily="monospace"
+                android:background="#1a1a2e"
+                android:paddingHorizontal="28dp"
+                android:paddingVertical="16dp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- QR-Code -->
+            <ImageView
+                android:id="@+id/ivQrCode"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginBottom="20dp"
+                android:background="#ffffff"
+                android:padding="12dp"
+                android:contentDescription="QR-Code" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Scanne den QR-Code oder öffne die PushIt-Oberfläche und navigiere zu /pair/[CODE]."
+                android:textSize="13sp"
+                android:textColor="#888899"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/tvPairingUrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="11sp"
+                android:textColor="#555577"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:layout_marginBottom="32dp" />
+
+            <TextView
+                android:id="@+id/tvPairingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Warte auf Bestätigung…"
+                android:textSize="13sp"
+                android:textColor="#888899"
+                android:layout_marginBottom="24dp" />
+
+            <Button
+                android:id="@+id/btnCancelPairing"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Abbrechen"
+                android:backgroundTint="#2a2a3e"
+                android:textColor="#888899"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <!-- ── SCREEN 3: VERBUNDEN ── -->
+        <LinearLayout
+            android:id="@+id/layoutConnected"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvConnStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● Verbunden"
+                android:textSize="18sp"
+                android:textColor="#4ade80"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tvConnBackend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="12sp"
+                android:textColor="#555577"
+                android:fontFamily="monospace"
+                android:layout_marginBottom="40dp" />
+
+            <Button
+                android:id="@+id/btnReset"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="Neu konfigurieren"
+                android:backgroundTint="#2a2a3e"
+                android:textColor="#888899"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

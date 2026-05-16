@@ -1,0 +1,14 @@
+{
+  "name": "pushit",
+  "private": true,
+  "workspaces": ["backend", "frontend", "tauri-client"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "client:dev": "npm run dev -w tauri-client",
+    "client:build": "npm run build -w tauri-client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

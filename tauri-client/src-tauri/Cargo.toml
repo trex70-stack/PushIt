@@ -1,0 +1,22 @@
+[package]
+name = "pushit-client"
+version = "1.0.0"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.26"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+dirs = "5"
+base64 = "0.22"
+urlencoding = "2"
+
+[profile.release]
+opt-level = "s"
+strip = true

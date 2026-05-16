@@ -1,0 +1,7 @@
+{
+  "$schema": "https://schemas.tauri.app/core/schema/capability.json",
+  "identifier": "default",
+  "description": "Default capability for PushIt Client windows",
+  "windows": ["setup", "overlay-*"],
+  "permissions": ["core:default"]
+}
