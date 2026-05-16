@@ -122,7 +122,9 @@ fn update_tray(app: &AppHandle, status: &str) {
 }
 
 fn open_setup(app: &AppHandle) {
+    // Fenster offen? → fokussieren. Sonst neu erstellen (aktiviert macOS-App automatisch).
     if let Some(win) = app.get_webview_window("setup") {
+        let _ = win.unminimize();
         let _ = win.show();
         let _ = win.set_focus();
         return;
@@ -131,6 +133,7 @@ fn open_setup(app: &AppHandle) {
         .title("PushIt – Einstellungen")
         .inner_size(480.0, 440.0)
         .resizable(false)
+        .focused(true)
         .build();
 }
 
@@ -337,14 +340,9 @@ fn main() {
 
             Ok(())
         })
-        .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                if window.label() == "setup" {
-                    let _ = window.hide();
-                    api.prevent_close();
-                }
-            }
-        })
+        // Setup-Fenster darf normal geschlossen werden – beim nächsten Klick
+        // auf "Einstellungen" wird ein neues Fenster erstellt, das macOS
+        // automatisch aktiviert. Die App bleibt via ExitRequested am Laufen.
         .build(tauri::generate_context!())
         .expect("Tauri-App konnte nicht gestartet werden")
         .run(|_app, event| {
