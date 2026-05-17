@@ -121,6 +121,13 @@ export async function notificationRoutes(app: FastifyInstance) {
     return reply.code(201).send(notification);
   });
 
+  app.delete("/notifications/bulk", { preHandler: requireAdmin }, async (request, reply) => {
+    const body = z.object({ ids: z.array(z.string().uuid()).min(1) }).safeParse(request.body);
+    if (!body.success) return reply.code(400).send({ error: body.error.flatten() });
+    await db.delete(notifications).where(inArray(notifications.id, body.data.ids));
+    return reply.code(204).send();
+  });
+
   app.delete("/notifications/:id", { preHandler: requireAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
     // notificationDeliveries werden per CASCADE mitgelöscht (Schema-Definition)

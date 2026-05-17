@@ -5,6 +5,9 @@ export const api = axios.create({ baseURL: "/api/v1" });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (config.data !== undefined && !config.headers["Content-Type"]) {
+    config.headers["Content-Type"] = "application/json";
+  }
   return config;
 });
 

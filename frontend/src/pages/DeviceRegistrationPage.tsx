@@ -14,7 +14,7 @@ interface Device {
 }
 
 interface Diagnostics {
-  permission: NotificationPermission | "unbekannt";
+  permission: NotificationPermission | "unbekannt" | "prüfen…";
   swState: "nicht unterstützt" | "nicht registriert" | "installing" | "waiting" | "active" | "prüfen…";
   swControlling: boolean;
   hasSubscription: boolean;
@@ -22,11 +22,14 @@ interface Diagnostics {
 
 type RegistrationState = "idle" | "pending" | "success" | "error";
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = atob(base64);
-  return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+  const buffer = new ArrayBuffer(rawData.length);
+  const view = new Uint8Array(buffer);
+  for (let i = 0; i < rawData.length; i++) view[i] = rawData.charCodeAt(i);
+  return view;
 }
 
 function DiagRow({ label, value, ok }: { label: string; value: string; ok: boolean | null }) {

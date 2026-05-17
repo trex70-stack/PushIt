@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppLayout } from "./components/layout/AppLayout.js";
@@ -9,6 +10,7 @@ import { ApiKeysPage } from "./pages/ApiKeysPage.js";
 import { NewNotificationPage } from "./pages/NewNotificationPage.js";
 import { DeviceRegistrationPage } from "./pages/DeviceRegistrationPage.js";
 import { PairConfirmPage } from "./pages/PairConfirmPage.js";
+import { SelfRegistrationPage } from "./pages/SelfRegistrationPage.js";
 import { getToken } from "./lib/auth.js";
 
 const queryClient = new QueryClient({
@@ -19,12 +21,24 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return getToken() ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+// Initialen Dark-Mode-Zustand aus localStorage/System-Präferenz setzen
+// (vor erstem Render, um Flackern zu vermeiden)
+function initDarkMode() {
+  const stored = localStorage.getItem("theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const dark = stored === "dark" || (stored !== "light" && prefersDark);
+  document.documentElement.classList.toggle("dark", dark);
+}
+
 export default function App() {
+  useEffect(() => { initDarkMode(); }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<SelfRegistrationPage />} />
           <Route path="/pair/:code" element={<PairConfirmPage />} />
           <Route
             element={

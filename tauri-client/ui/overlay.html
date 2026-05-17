@@ -168,7 +168,8 @@
     const raw = params.get('data');
     if (raw) {
       try {
-        const data = JSON.parse(atob(raw));
+        const bytes = Uint8Array.from(atob(raw), c => c.charCodeAt(0));
+        const data = JSON.parse(new TextDecoder().decode(bytes));
         const category = data.category ?? 'info';
 
         document.body.classList.add('cat-' + category);

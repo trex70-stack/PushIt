@@ -11,6 +11,8 @@ use tauri::{
     tray::TrayIconBuilder,
     AppHandle, Manager, State, WebviewUrl, WebviewWindowBuilder,
 };
+#[cfg(target_os = "macos")]
+use tauri::ActivationPolicy;
 use tokio::sync::oneshot;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
@@ -122,19 +124,37 @@ fn update_tray(app: &AppHandle, status: &str) {
 }
 
 fn open_setup(app: &AppHandle) {
-    // Fenster offen? → fokussieren. Sonst neu erstellen (aktiviert macOS-App automatisch).
+    #[cfg(target_os = "macos")]
+    {
+        let _ = app.set_activation_policy(ActivationPolicy::Regular);
+        use objc2_app_kit::NSApplication;
+        let mtm = unsafe { objc2::MainThreadMarker::new_unchecked() };
+        let ns_app = NSApplication::sharedApplication(mtm);
+        #[allow(deprecated)]
+        ns_app.activateIgnoringOtherApps(true);
+    }
+
     if let Some(win) = app.get_webview_window("setup") {
         let _ = win.unminimize();
         let _ = win.show();
+        let _ = win.center();
         let _ = win.set_focus();
         return;
     }
-    let _ = WebviewWindowBuilder::new(app, "setup", WebviewUrl::App("setup.html".into()))
-        .title("PushIt – Einstellungen")
-        .inner_size(480.0, 440.0)
-        .resizable(false)
-        .focused(true)
-        .build();
+
+    if let Ok(win) = WebviewWindowBuilder::new(
+        app,
+        "setup",
+        WebviewUrl::App("setup.html".into()),
+    )
+    .title("PushIt – Einstellungen")
+    .inner_size(480.0, 440.0)
+    .resizable(false)
+    .center()
+    .build()
+    {
+        let _ = win.set_focus();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -308,6 +328,9 @@ fn main() {
         .manage(state)
         .invoke_handler(tauri::generate_handler![get_config, save_config, close_overlay])
         .setup(|app| {
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(ActivationPolicy::Accessory);
+
             let icon_bytes = include_bytes!("../icons/icon.png");
             let icon = tauri::image::Image::from_bytes(icon_bytes)?;
 
@@ -340,9 +363,20 @@ fn main() {
 
             Ok(())
         })
-        // Setup-Fenster darf normal geschlossen werden – beim nächsten Klick
-        // auf "Einstellungen" wird ein neues Fenster erstellt, das macOS
-        // automatisch aktiviert. Die App bleibt via ExitRequested am Laufen.
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.label() == "setup" {
+                    let _ = window.hide();
+                    api.prevent_close();
+                    #[cfg(target_os = "macos")]
+                    {
+                        let _ = window
+                            .app_handle()
+                            .set_activation_policy(ActivationPolicy::Accessory);
+                    }
+                }
+            }
+        })
         .build(tauri::generate_context!())
         .expect("Tauri-App konnte nicht gestartet werden")
         .run(|_app, event| {

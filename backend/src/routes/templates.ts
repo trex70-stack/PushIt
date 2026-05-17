@@ -84,6 +84,14 @@ export async function templateRoutes(app: FastifyInstance) {
     return result;
   });
 
+  app.delete("/templates/bulk", { preHandler: requireAdmin }, async (request, reply) => {
+    const body = z.object({ ids: z.array(z.string().uuid()).min(1) }).safeParse(request.body);
+    if (!body.success) return reply.code(400).send({ error: body.error.flatten() });
+    await db.delete(templateDevices).where(inArray(templateDevices.templateId, body.data.ids));
+    await db.delete(templates).where(inArray(templates.id, body.data.ids));
+    return reply.code(204).send();
+  });
+
   app.delete("/templates/:id", { preHandler: requireAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const deleted = await db.delete(templates).where(eq(templates.id, id)).returning();

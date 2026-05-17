@@ -151,3 +151,4 @@ export const notificationDeliveriesRelations = relations(notificationDeliveries,
   notification: one(notifications, { fields: [notificationDeliveries.notificationId], references: [notifications.id] }),
   device: one(devices, { fields: [notificationDeliveries.deviceId], references: [devices.id] }),
 }));
+
