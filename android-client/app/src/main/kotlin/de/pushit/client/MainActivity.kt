@@ -119,13 +119,6 @@ class MainActivity : AppCompatActivity() {
                 }
             )
         }
-        if (!Settings.canDrawOverlays(this)) {
-            startActivity(
-                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-                    data = Uri.parse("package:$packageName")
-                }
-            )
-        }
     }
 
     override fun onDestroy() {
