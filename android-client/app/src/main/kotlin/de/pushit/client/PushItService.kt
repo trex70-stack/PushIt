@@ -1,5 +1,6 @@
 package de.pushit.client
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -17,8 +18,10 @@ import java.util.concurrent.TimeUnit
 class PushItService : Service() {
 
     companion object {
-        const val CHANNEL_ID = "pushit_service"
-        const val NOTIF_ID   = 1
+        const val CHANNEL_ID         = "pushit_service"
+        const val OVERLAY_CHANNEL_ID = "pushit_overlay"
+        const val NOTIF_ID           = 1
+        const val OVERLAY_NOTIF_ID   = 2
         @Volatile var isConnected = false
     }
 
@@ -40,6 +43,7 @@ class PushItService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        createOverlayChannel()
         startForeground(NOTIF_ID, buildStatusNotification("Verbindung wird hergestellt…"))
     }
 
@@ -110,14 +114,28 @@ class PushItService : Service() {
     }
 
     private fun showOverlay(json: JSONObject) {
-        val intent = Intent(this, OverlayActivity::class.java).apply {
+        val activityIntent = Intent(this, OverlayActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             putExtra("title",      json.optString("title", "Neue Nachricht"))
             putExtra("body",       json.optString("body", ""))
             putExtra("category",   json.optString("category", "info"))
             putExtra("ttlSeconds", json.optLong("ttlSeconds", 30))
         }
-        startActivity(intent)
+        val pendingIntent = PendingIntent.getActivity(
+            this, System.currentTimeMillis().toInt(), activityIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val notification = NotificationCompat.Builder(this, OVERLAY_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(json.optString("title", "Neue Nachricht"))
+            .setContentText(json.optString("body", ""))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setFullScreenIntent(pendingIntent, true)
+            .setAutoCancel(true)
+            .build()
+        getSystemService(NotificationManager::class.java)
+            .notify(OVERLAY_NOTIF_ID, notification)
     }
 
     // ---------------------------------------------------------------------------
@@ -146,6 +164,17 @@ class PushItService : Service() {
             CHANNEL_ID, "PushIt Service",
             NotificationManager.IMPORTANCE_LOW
         ).apply { description = "WebSocket-Verbindung zum PushIt-Server" }
+        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+    }
+
+    private fun createOverlayChannel() {
+        val channel = NotificationChannel(
+            OVERLAY_CHANNEL_ID, "PushIt Meldungen",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Eingehende PushIt-Benachrichtigungen"
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+        }
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
